@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>わんだふるちきん 個体集計</title>
+<style>
+:root{--bg:#fbf7ee;--card:#fff;--ink:#2b2a26;--sub:#7a766b;--line:#e6dfcc;--acc:#e0891f;--accink:#fff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1d1c19;--card:#2a2824;--ink:#f1ede2;--sub:#a29d90;--line:#3d3a33;--acc:#f0a443;--accink:#1d1c19}}
+:root[data-theme="dark"]{--bg:#1d1c19;--card:#2a2824;--ink:#f1ede2;--sub:#a29d90;--line:#3d3a33;--acc:#f0a443;--accink:#1d1c19}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 "Hiragino Sans","Noto Sans JP","Yu Gothic",system-ui,sans-serif}
+main{max-width:980px;margin:0 auto;padding:16px}
+h1{font-size:22px;margin:4px 0 2px}h2{font-size:16px;margin:0 0 10px}
+.sub{color:var(--sub);font-size:13px;margin:0 0 14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:14px}
+button,input,select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 10px}
+button{cursor:pointer}button.p{background:var(--acc);color:var(--accink);border-color:var(--acc);font-weight:600}
+button.s{padding:2px 8px;font-size:13px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.rank{display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px dashed var(--line)}
+.rank .n{flex:1}.rank .i{color:var(--sub);width:1.6em;text-align:right}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin:10px 0}
+.fgrid label{font-size:12px;color:var(--sub);display:flex;flex-direction:column;gap:2px}
+.fgrid select{width:100%}
+.bar{display:grid;grid-template-columns:5.5em 1fr 6.5em;gap:6px;align-items:center;font-size:13px;margin:3px 0}
+.bar .t{background:var(--line);border-radius:5px;height:14px;overflow:hidden}
+.bar .t i{display:block;height:100%;border-radius:5px}
+.bar .v{text-align:right;color:var(--sub);white-space:nowrap}.bar .l{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sc{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:13px;white-space:nowrap}
+th,td{border-bottom:1px solid var(--line);padding:5px 8px;text-align:left}th{color:var(--sub);font-weight:600}
+.rank .d{color:var(--sub);font-size:12px}td.w{white-space:normal;min-width:12em}.wide .bar{grid-template-columns:10em 1fr 6.5em}textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 10px}
+.empty{color:var(--sub);font-size:13px}
+</style>
+</head>
+<body>
+<main>
+<div class="card" id="msg" style="display:none"></div>
+<h1>🐔 わんだふるちきん 個体集計</h1>
+<p class="sub">みんなで個体のランクを集めて、ステータスごとのランク割合を見るサイトです。見るだけならログイン不要。追加・編集はログインが必要で、自分が追加した分だけ編集・削除できます。</p>
+
+<div class="card row"><span id="who" class="sub" style="flex:1">読み込み中…</span>
+<button class="p" id="login">Googleでログイン</button><button id="logout" style="display:none">ログアウト</button></div>
+
+<div class="card">
+<h2>ランク一覧（上ほど高ランク）</h2>
+<div id="ranks"></div>
+<div class="row ed" style="margin-top:10px">
+<input id="rnew" placeholder="ランク名（カンマ区切りで複数OK）" style="flex:1;min-width:180px">
+<select id="rpos"><option value="end">一番下に追加</option><option value="top">一番上に追加</option></select>
+<button class="p" id="radd">追加</button>
+</div>
+<p class="sub" style="margin:8px 0 0">未判明のランクは後から追加できます。性格・特性も同様で、名前変更・削除は追加した人だけです。並べ替え(↑↓)はログインした人なら誰でも、名前変更・削除は追加した人だけです。</p>
+</div>
+
+<div class="card">
+<h2>性格一覧</h2>
+<div id="plist"></div>
+<div class="row ed" style="margin-top:10px">
+<textarea id="pnew" rows="2" placeholder="1行に1つ。例：ぼーっとしているが、空では活き活き。" style="flex:1;min-width:200px"></textarea>
+<button class="p" id="padd">追加</button>
+</div>
+</div>
+
+<div class="card">
+<h2>特性一覧</h2>
+<div id="tlist"></div>
+<div class="row ed" style="margin-top:10px">
+<textarea id="tnew" rows="2" placeholder="1行に1つ。「名前:説明」の形式。例：綿毛:さらにゆっくりと落ちていく。" style="flex:1;min-width:200px"></textarea>
+<button class="p" id="tadd">追加</button>
+</div>
+</div>
+
+<div class="card ed">
+<h2 id="ftitle">個体を追加</h2>
+<div class="row"><input id="cname" placeholder="名前・メモ（任意）" style="flex:1;min-width:180px"></div>
+<div class="fgrid" id="fields"></div>
+<div class="row"><button class="p" id="csave">追加</button><button id="ccancel" style="display:none">編集をやめる</button></div>
+</div>
+
+<div class="card">
+<h2>ランク割合 <span class="sub" id="cnt"></span></h2>
+<div class="grid" id="sum"></div>
+</div>
+
+<div class="card">
+<h2>登録済みの個体</h2>
+<div class="sc" id="list"></div>
+</div>
+</main>
+
+<script type="module">
+// ▼ Firebaseコンソールの「ウェブアプリ」設定の値に置き換えてください
+const firebaseConfig={
+  apiKey:"YOUR_API_KEY",
+  authDomain:"YOUR_PROJECT.firebaseapp.com",
+  projectId:"YOUR_PROJECT",
+  appId:"YOUR_APP_ID"
+};
+// ▲
+
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import {getAuth,onAuthStateChanged,signInWithPopup,GoogleAuthProvider,signOut} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import {getFirestore,collection,doc,addDoc,updateDoc,deleteDoc,onSnapshot,writeBatch} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+const STATS=["最大体力","サイズ","地上速度","空中速度","上昇速度","ジャンプ力","段差無視","スタミナ","スタミナ回復"];
+let me=null,lists={personalities:[],traits:[]},ranks=[],chickens=[],editId=null,fdb=null,auth=null;
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const color=i=>{const n=Math.max(ranks.length-1,1);return `hsl(${Math.round(135-i/n*135)},60%,50%)`};
+const rname=id=>(ranks.find(r=>r.id===id)||{}).name;
+const lname=(k,id)=>(lists[k].find(r=>r.id===id)||{}).name;
+const parse=s=>{const m=s.match(/^([^:：]+)[:：](.*)$/);return m?{name:m[1].trim(),desc:m[2].trim()}:{name:s.trim(),desc:""}};
+const mine=x=>me&&x.uid===me.uid;
+const fail=e=>alert("保存できませんでした："+((e&&e.code)||(e&&e.message)||"不明なエラー"));
+const cref=n=>collection(fdb,n), dref=(n,id)=>doc(fdb,n,id);
+
+function renderRanks(){
+ const b=(a,i,t)=>`<button class="s" data-a="${a}" data-i="${i}">${t}</button>`;
+ $("ranks").innerHTML=ranks.length?ranks.map((r,i)=>`<div class="rank"><span class="i">${i+1}</span><span class="n">${esc(r.name)}</span>${me?b("up",i,"↑")+b("dn",i,"↓"):""}${mine(r)?b("rn",i,"名前変更")+b("del",i,"削除"):""}</div>`).join(""):'<div class="empty">まだランクがありません。</div>';
+}
+function renderFields(vals={}){
+ const opts=(L,v)=>`<option value="">未入力</option>`+L.map(r=>`<option value="${r.id}"${r.id===v?" selected":""}>${esc(r.name)}</option>`).join("");
+ $("fields").innerHTML=STATS.map((k,i)=>`<label>${k}<select data-k="${i}">${opts(ranks,vals[i])}</select></label>`).join("")
+  +`<label>性格<select data-k="p">${opts(lists.personalities,vals.p)}</select></label><label>特性<select data-k="t">${opts(lists.traits,vals.t)}</select></label>`;
+}
+function renderSimple(id,key){
+ const L=lists[key];
+ $(id).innerHTML=L.length?L.map((r,i)=>`<div class="rank"><span class="n">${esc(r.name)}${r.desc?` <span class="d">${esc(r.desc)}</span>`:""}</span>${mine(r)?`<button class="s" data-l="${key}" data-a="rn" data-i="${i}">編集</button><button class="s" data-l="${key}" data-a="del" data-i="${i}">削除</button>`:""}</div>`).join(""):'<div class="empty">まだありません。</div>';
+}
+function readForm(){const o={};document.querySelectorAll("#fields select").forEach(s=>{if(s.value)o[s.dataset.k]=s.value});return o}
+function bars(list,total){
+ if(!total)return'<div class="empty">データなし</div>';
+ const max=Math.max(...list.map(c=>c.n),1);
+ return list.map(c=>`<div class="bar"><span class="l" title="${esc(c.r)}">${esc(c.r)}</span><span class="t"><i style="width:${c.n/max*100}%;background:${c.col}"></i></span><span class="v">${c.n}件 ${(c.n/total*100).toFixed(1)}%</span></div>`).join("");
+}
+function renderSum(){
+ $("cnt").textContent=`（${chickens.length}体）`;
+ $("sum").innerHTML=STATS.map((k,i)=>{
+  const vals=chickens.map(c=>c.s&&c.s[i]).filter(v=>v&&rname(v));
+  const list=ranks.map((r,j)=>({r:r.name,n:vals.filter(v=>v===r.id).length,col:color(j)}));
+  return `<div><b>${k}</b> <span class="sub">(${vals.length}件)</span>${bars(list,vals.length)}</div>`}).join("")+[["性格","personalities","personality"],["特性","traits","trait"]].map(([t,k,f])=>{
+  const L=lists[k],vals=chickens.map(c=>c[f]).filter(v=>L.some(r=>r.id===v));
+  const list=L.map(r=>({r:r.name,n:vals.filter(v=>v===r.id).length,col:"var(--acc)"}));
+  return `<div class="wide"><b>${t}</b> <span class="sub">(${vals.length}件)</span>${bars(list,vals.length)}</div>`}).join("");
+}
+function renderList(){
+ if(!chickens.length){$("list").innerHTML='<div class="empty">まだ個体がいません。</div>';return}
+ $("list").innerHTML=`<table><tr><th>#</th><th>名前</th>${STATS.map(k=>`<th>${k}</th>`).join("")}<th>性格</th><th>特性</th><th>登録者</th><th></th></tr>`+
+ chickens.map((c,n)=>`<tr><td>${n+1}</td><td>${esc(c.name||"-")}</td>${STATS.map((_,i)=>`<td>${esc(rname(c.s&&c.s[i])||"-")}</td>`).join("")}<td class="w">${esc(lname("personalities",c.personality)||"-")}</td><td>${esc(lname("traits",c.trait)||"-")}</td><td>${esc(c.uname||"-")}</td>
+ <td>${mine(c)?`<button class="s" data-e="${c.id}">編集</button> <button class="s" data-d="${c.id}">削除</button>`:""}</td></tr>`).join("")+"</table>";
+}
+function renderAll(){
+ const v=readForm();
+ if(editId&&!chickens.some(c=>c.id===editId&&mine(c)))stopEdit();
+ document.querySelectorAll(".ed").forEach(e=>e.style.display=me?"":"none");
+ $("who").textContent=me?`ログイン中：${me.displayName||me.email||"ユーザー"}`:"ログインすると、ランクや個体を追加できます。";
+ $("login").style.display=me?"none":"";$("logout").style.display=me?"":"none";
+ renderRanks();renderSimple("plist","personalities");renderSimple("tlist","traits");renderFields(v);renderSum();renderList();
+}
+function stopEdit(){editId=null;$("ftitle").textContent="個体を追加";$("csave").textContent="追加";$("ccancel").style.display="none"}
+
+$("login").onclick=()=>signInWithPopup(auth,new GoogleAuthProvider()).catch(fail);
+$("logout").onclick=()=>signOut(auth);
+
+$("radd").onclick=async()=>{
+ if(!me)return;
+ const names=[...new Set($("rnew").value.split(/[,、\n]/).map(s=>s.trim()).filter(s=>s&&s.length<=40&&!ranks.some(r=>r.name===s)))];
+ if(!names.length)return;
+ const top=$("rpos").value==="top";
+ let lo=ranks.length?ranks[0].order:0,hi=ranks.length?ranks[ranks.length-1].order:0;
+ try{
+  for(const n of top?names.slice().reverse():names)
+   await addDoc(cref("ranks"),{name:n,order:top?--lo:++hi,uid:me.uid});
+  $("rnew").value="";
+ }catch(e){fail(e)}
+};
+$("ranks").onclick=async e=>{
+ const b=e.target.closest("button");if(!b||!me)return;
+ const i=+b.dataset.i,a=b.dataset.a,r=ranks[i];
+ try{
+  if(a==="up"||a==="dn"){const o=ranks[a==="up"?i-1:i+1];if(!o)return;
+   const w=writeBatch(fdb);w.update(dref("ranks",r.id),{order:o.order});w.update(dref("ranks",o.id),{order:r.order});await w.commit()}
+  if(a==="rn"){const nn=(prompt("新しいランク名",r.name)||"").trim();
+   if(!nn||nn.length>40||ranks.some(x=>x.name===nn&&x.id!==r.id))return;await updateDoc(dref("ranks",r.id),{name:nn})}
+  if(a==="del"){if(!confirm(`「${r.name}」を削除しますか？みんなの画面から消え、このランクの入力は未入力扱いになります。`))return;
+   await deleteDoc(dref("ranks",r.id))}
+ }catch(err){fail(err)}
+};
+const SK={personalities:["pnew","personalities"],traits:["tnew","traits"]};
+for(const [btn,key] of [["padd","personalities"],["tadd","traits"]]){
+ $(btn).onclick=async()=>{
+  if(!me)return;const inp=$(SK[key][0]);
+  const items=inp.value.split("\n").map(parse).filter(x=>x.name&&x.name.length<=60&&x.desc.length<=200&&!lists[key].some(r=>r.name===x.name));
+  const uniq=items.filter((x,i)=>items.findIndex(y=>y.name===x.name)===i);
+  if(!uniq.length)return;
+  try{let n=Date.now();for(const x of uniq)await addDoc(cref(key),{name:x.name,desc:x.desc,uid:me.uid,at:n++});inp.value=""}catch(e){fail(e)}
+ };
+}
+for(const id of ["plist","tlist"])$(id).onclick=async e=>{
+ const b=e.target.closest("button");if(!b||!me)return;
+ const key=b.dataset.l,r=lists[key][+b.dataset.i];if(!r||!mine(r))return;
+ try{
+  if(b.dataset.a==="rn"){const v=prompt("名前:説明（説明は省略可）",r.desc?r.name+":"+r.desc:r.name);if(v===null)return;
+   const x=parse(v);if(!x.name||x.name.length>60||x.desc.length>200||lists[key].some(y=>y.name===x.name&&y.id!==r.id))return;
+   await updateDoc(dref(key,r.id),{name:x.name,desc:x.desc})}
+  if(b.dataset.a==="del"){if(!confirm(`「${r.name}」を削除しますか？この項目の入力は未入力扱いになります。`))return;await deleteDoc(dref(key,r.id))}
+ }catch(err){fail(err)}
+};
+$("csave").onclick=async()=>{
+ if(!me)return;
+ const o=readForm(),{p,t,...s}=o,name=$("cname").value.trim().slice(0,60);
+ if(!Object.keys(o).length&&!name)return;
+ try{
+  if(editId)await updateDoc(dref("chickens",editId),{name,s,personality:p||"",trait:t||""});
+  else await addDoc(cref("chickens"),{name,s,personality:p||"",trait:t||"",uid:me.uid,uname:(me.displayName||"匿名").slice(0,40),at:Date.now()});
+  stopEdit();$("cname").value="";renderAll();
+ }catch(e){fail(e)}
+};
+$("ccancel").onclick=()=>{stopEdit();$("cname").value="";renderAll()};
+$("list").onclick=async e=>{
+ const b=e.target.closest("button");if(!b)return;
+ if(b.dataset.d){if(!confirm("この個体を削除しますか？"))return;
+  try{await deleteDoc(dref("chickens",b.dataset.d))}catch(err){fail(err)}}
+ if(b.dataset.e){editId=b.dataset.e;const c=chickens.find(c=>c.id===editId);$("cname").value=c.name||"";
+  $("ftitle").textContent="個体を編集";$("csave").textContent="保存";$("ccancel").style.display="";renderFields({...(c.s||{}),p:c.personality,t:c.trait});
+  $("ftitle").scrollIntoView({behavior:"smooth"})}
+};
+
+renderAll();
+if(firebaseConfig.apiKey.startsWith("YOUR_")){
+ const m=$("msg");m.style.display="";m.textContent="index.html の firebaseConfig を自分のFirebaseの値に書き換えてください。";
+ $("who").textContent="";$("login").style.display="none";
+}else{
+ const app=initializeApp(firebaseConfig);auth=getAuth(app);fdb=getFirestore(app);
+ const err=e=>{const m=$("msg");m.style.display="";m.textContent="読み込みエラー："+((e&&e.code)||"")};
+ onAuthStateChanged(auth,u=>{me=u;renderAll()});
+ onSnapshot(cref("ranks"),s=>{ranks=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.order-b.order);renderAll()},err);
+ for(const key of ["personalities","traits"])
+  onSnapshot(cref(key),s=>{lists[key]=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.at||0)-(b.at||0));renderAll()},err);
+ onSnapshot(cref("chickens"),s=>{chickens=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.at||0)-(b.at||0));renderAll()},err);
+}
+</script>
+</body>
+</html>
