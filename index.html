@@ -4,78 +4,116 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>わんだふるちきん 集計</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#fbf7ee;--card:#fff;--ink:#2b2a26;--sub:#7a766b;--line:#e6dfcc;--acc:#e0891f;--accink:#fff;
-box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1d1c19;--card:#2a2824;--ink:#f1ede2;--sub:#a29d90;--line:#3d3a33;--acc:#f0a443;--accink:#1d1c19}}
-:root[data-theme="dark"]{--bg:#1d1c19;--card:#2a2824;--ink:#f1ede2;--sub:#a29d90;--line:#3d3a33;--acc:#f0a443;--accink:#1d1c19}
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
+:root{--ink:#26324d;--sub:#6b7a99;--line:#cfdcef;--acc:#ff9f1c;--grass:#5fc35a}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 "Hiragino Sans","Noto Sans JP","Yu Gothic",system-ui,sans-serif}
-main{max-width:980px;margin:0 auto;padding:16px}
-h1{font-size:22px;margin:4px 0 2px}h2{font-size:16px;margin:0 0 10px}
-.sub{color:var(--sub);font-size:13px;margin:0 0 14px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:14px}
-button,input,select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 10px}
-button{cursor:pointer}button.p{background:var(--acc);color:var(--accink);border-color:var(--acc);font-weight:600}
-button.s{padding:2px 8px;font-size:13px}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100vh;color:var(--ink);padding-top:env(safe-area-inset-top,0px);
+font:500 15px/1.6 "Zen Maru Gothic","Hiragino Maru Gothic ProN","Yu Gothic",system-ui,sans-serif;
+background:linear-gradient(#5bb8f5 0,#aee1ff 50%,#e2f7ff 100%) fixed}
+#bg{position:fixed;inset:0;overflow:hidden;z-index:0;pointer-events:none}
+#grass{position:fixed;left:0;right:0;bottom:0;height:40px;z-index:0;pointer-events:none;
+background:linear-gradient(#6cc24a 0 12px,#4f9a36 12px 16px,#8b5a2b 16px 100%)}
+.ck{position:absolute;left:0;will-change:transform;animation:fly var(--d) linear var(--dl) infinite}
+.ck.r{animation-name:flyR}
+.ck .fl{width:100%;height:100%}.ck.r .fl{transform:scaleX(-1)}
+.ck svg{display:block;width:100%;height:100%;animation:bob .5s steps(2,jump-none) infinite;
+filter:drop-shadow(2px 0 0 #26324d) drop-shadow(-2px 0 0 #26324d) drop-shadow(0 2px 0 #26324d) drop-shadow(0 -2px 0 #26324d)}
+@keyframes fly{from{transform:translateX(-140px)}to{transform:translateX(calc(100vw + 140px))}}
+@keyframes flyR{from{transform:translateX(calc(100vw + 140px))}to{transform:translateX(-140px)}}
+@keyframes bob{0%{transform:translateY(0)}50%{transform:translateY(-8%)}100%{transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){#bg{display:none}}
+main{position:relative;z-index:1;max-width:980px;margin:0 auto;padding:16px 16px calc(64px + env(safe-area-inset-bottom,0px))}
+h1{display:flex;align-items:center;gap:14px;margin:6px 0 18px;font:400 clamp(24px,6vw,38px)/1.2 "Mochiy Pop One","Zen Maru Gothic",sans-serif;
+color:#fff;-webkit-text-stroke:7px var(--ink);paint-order:stroke fill;text-shadow:4px 4px 0 var(--ink);letter-spacing:.04em}
+h1 img{width:64px;height:64px;border-radius:16px;border:3px solid var(--ink);box-shadow:4px 4px 0 var(--ink);background:#fff}
+h2{display:flex;align-items:center;gap:8px;margin:0 0 10px;font:400 18px/1.3 "Mochiy Pop One","Zen Maru Gothic",sans-serif}
+h2::before{content:"";width:12px;height:12px;background:var(--acc);border:2px solid var(--ink);transform:rotate(45deg)}
+.card{background:#fff;border:3px solid var(--ink);border-radius:20px;padding:14px 16px;margin-bottom:18px;box-shadow:5px 5px 0 var(--ink)}
+.sub{color:var(--sub);font-size:13px}
+button,input,select,textarea{font:inherit;color:var(--ink);background:#f5fbff;border:2px solid var(--ink);border-radius:12px;padding:6px 12px}
+button{cursor:pointer;background:#fff;font-weight:700;box-shadow:0 3px 0 var(--ink);transition:transform .08s,box-shadow .08s}
+button:hover{background:#fff6e0}button:active{transform:translateY(3px);box-shadow:0 0 0 var(--ink)}
+button.p{background:var(--acc)}button.p:hover{background:#ffb347}
+button.s{padding:0 9px;font-size:12px;box-shadow:0 2px 0 var(--ink);border-radius:9px}
+button.s:active{transform:translateY(2px);box-shadow:none}
+input:focus,select:focus,textarea:focus{outline:3px solid #ffd27a}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.rank{display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px dashed var(--line)}
-.rank .n{flex:1}.rank .i{color:var(--sub);width:1.6em;text-align:right}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
+.rank{display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:2px dotted var(--line)}
+.rank .n{flex:1}.rank .d{color:var(--sub);font-size:12px}
+.rank .i{background:var(--ink);color:#fff;border-radius:8px;min-width:1.8em;text-align:center;font-size:12px;font-weight:900}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}
+.grid>div{background:#f5fbff;border:2px solid var(--ink);border-radius:14px;padding:10px 12px}
 .fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin:10px 0}
-.fgrid label{font-size:12px;color:var(--sub);display:flex;flex-direction:column;gap:2px}
+.fgrid label{font-size:12px;font-weight:700;color:var(--sub);display:flex;flex-direction:column;gap:2px}
 .fgrid select{width:100%}
-.bar{display:grid;grid-template-columns:5.5em 1fr 6.5em;gap:6px;align-items:center;font-size:13px;margin:3px 0}
-.bar .t{background:var(--line);border-radius:5px;height:14px;overflow:hidden}
-.bar .t i{display:block;height:100%;border-radius:5px}
-.bar .v{text-align:right;color:var(--sub);white-space:nowrap}.bar .l{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar{display:grid;grid-template-columns:6em 1fr 6.5em;gap:6px;align-items:center;font-size:13px;margin:4px 0}
+.wide .bar{grid-template-columns:10em 1fr 6.5em}
+.bar .t{background:#fff;border:2px solid var(--ink);border-radius:9px;height:16px;overflow:hidden}
+.bar .t i{display:block;height:100%;border-right:2px solid var(--ink)}
+.bar .v{text-align:right;color:var(--sub);white-space:nowrap;font-weight:700}
+.bar .l{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}
 .sc{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:13px;white-space:nowrap}
-th,td{border-bottom:1px solid var(--line);padding:5px 8px;text-align:left}th{color:var(--sub);font-weight:600}
-.rank .d{color:var(--sub);font-size:12px}td.w{white-space:normal;min-width:12em}.wide .bar{grid-template-columns:10em 1fr 6.5em}textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 10px}
-.empty{color:var(--sub);font-size:13px}
+th,td{border-bottom:2px solid var(--line);padding:6px 8px;text-align:left}
+th{background:#eaf6ff;color:var(--ink);font-weight:900}td.w{white-space:normal;min-width:12em}
+.empty{color:var(--sub)}
+#msg{background:#fff3cd}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="ck" viewBox="0 0 14 12">
+<rect x="1" y="3" width="2" height="3" fill="#f2f2f6"/>
+<rect x="2" y="4" width="8" height="5" fill="#fbfbff"/><rect x="2" y="8" width="8" height="1" fill="#d6d9e6"/>
+<rect x="4" y="5" width="4" height="3" fill="#e3e6f2"/>
+<rect x="9" y="1" width="3" height="4" fill="#fbfbff"/><rect x="10" y="2" width="1" height="1" fill="#2a1d1d"/>
+<rect x="12" y="2" width="2" height="2" fill="#f5a623"/><rect x="12" y="4" width="1" height="1" fill="#d62828"/>
+<rect x="5" y="9" width="1" height="3" fill="#e8a53a"/><rect x="8" y="9" width="1" height="3" fill="#e8a53a"/>
+<rect x="5" y="11" width="2" height="1" fill="#e8a53a"/><rect x="8" y="11" width="2" height="1" fill="#e8a53a"/>
+</symbol></svg>
+<div id="bg" aria-hidden="true"></div><div id="grass" aria-hidden="true"></div>
 <main>
 <div class="card" id="msg" style="display:none"></div>
-<h1>わんだふるちきん 集計</h1>
-  
-<div class="card row"><span id="who" class="sub" style="flex:1">読み込み中…</span>
+<h1><img src="icon.png" alt=""><span>わんだふるちきん 集計</span></h1>
+
+<div class="card row"><span id="who" class="sub" style="flex:1"></span>
 <button class="p" id="login">Googleでログイン</button><button id="logout" style="display:none">ログアウト</button></div>
 
 <div class="card">
-<h2>ランク一覧（上ほど高ランク）</h2>
+<h2>ランク</h2>
 <div id="ranks"></div>
 <div class="row ed" style="margin-top:10px">
-<input id="rnew" placeholder="ランク名（カンマ区切りで複数OK）" style="flex:1;min-width:180px">
+<input id="rnew" placeholder="ランク名" style="flex:1;min-width:180px">
 <select id="rpos"><option value="end">一番下に追加</option><option value="top">一番上に追加</option></select>
 <button class="p" id="radd">追加</button>
 </div>
-<p class="sub" style="margin:8px 0 0">未判明のランクは後から追加できます。性格・特性も同様で、名前変更・削除は追加した人だけです。並べ替え(↑↓)はログインした人なら誰でも、名前変更・削除は追加した人だけです。</p>
 </div>
 
 <div class="card">
-<h2>性格一覧</h2>
+<h2>性格</h2>
 <div id="plist"></div>
 <div class="row ed" style="margin-top:10px">
-<textarea id="pnew" rows="2" placeholder="1行に1つ。例：ぼーっとしているが、空では活き活き。" style="flex:1;min-width:200px"></textarea>
+<textarea id="pnew" rows="2" placeholder="性格" style="flex:1;min-width:200px"></textarea>
 <button class="p" id="padd">追加</button>
 </div>
 </div>
 
 <div class="card">
-<h2>特性一覧</h2>
+<h2>特性</h2>
 <div id="tlist"></div>
 <div class="row ed" style="margin-top:10px">
-<textarea id="tnew" rows="2" placeholder="1行に1つ。「名前:説明」の形式。例：綿毛:さらにゆっくりと落ちていく。" style="flex:1;min-width:200px"></textarea>
+<textarea id="tnew" rows="2" placeholder="名前:説明" style="flex:1;min-width:200px"></textarea>
 <button class="p" id="tadd">追加</button>
 </div>
 </div>
 
 <div class="card ed">
 <h2 id="ftitle">個体を追加</h2>
-<div class="row"><input id="cname" placeholder="名前・メモ（任意）" style="flex:1;min-width:180px"></div>
+<div class="row"><input id="cname" placeholder="名前・メモ" style="flex:1;min-width:180px"></div>
 <div class="fgrid" id="fields"></div>
 <div class="row"><button class="p" id="csave">追加</button><button id="ccancel" style="display:none">編集をやめる</button></div>
 </div>
@@ -91,8 +129,21 @@ th,td{border-bottom:1px solid var(--line);padding:5px 8px;text-align:left}th{col
 </div>
 </main>
 
+<script>
+(()=>{
+ if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+ const bg=document.getElementById("bg");
+ for(let i=0;i<11;i++){
+  const w=34+Math.random()*62,r=Math.random()<.45,d=16+Math.random()*26;
+  const e=document.createElement("div");e.className="ck"+(r?" r":"");
+  e.style.cssText=`top:${3+Math.random()*86}%;width:${w}px;height:${w*12/14}px;--d:${d}s;--dl:-${Math.random()*d}s;opacity:${.6+Math.random()*.4}`;
+  e.innerHTML='<div class="fl"><svg viewBox="0 0 14 12" shape-rendering="crispEdges"><use href="#ck"/></svg></div>';
+  bg.appendChild(e);
+ }
+})();
+</script>
+
 <script type="module">
-// ▼ Firebaseコンソールの「ウェブアプリ」設定の値に置き換えてください
 const firebaseConfig = {
   apiKey: "AIzaSyBQfshxge8qi92XdUejMPfaiDbnLrO1ZPU",
   authDomain: "wwc-totalling.firebaseapp.com",
@@ -102,7 +153,6 @@ const firebaseConfig = {
   appId: "1:782157669658:web:f66f31162cec63cba578a3",
   measurementId: "G-M1H5NH2GLM"
 };
-// ▲
 
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 import {getAuth,onAuthStateChanged,signInWithPopup,GoogleAuthProvider,signOut} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
@@ -112,7 +162,7 @@ const STATS=["最大体力","サイズ","地上速度","空中速度","上昇速
 let me=null,lists={personalities:[],traits:[]},ranks=[],chickens=[],editId=null,fdb=null,auth=null;
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const color=i=>{const n=Math.max(ranks.length-1,1);return `hsl(${Math.round(135-i/n*135)},60%,50%)`};
+const color=i=>{const n=Math.max(ranks.length-1,1);return `hsl(${Math.round(135-i/n*135)},70%,58%)`};
 const rname=id=>(ranks.find(r=>r.id===id)||{}).name;
 const lname=(k,id)=>(lists[k].find(r=>r.id===id)||{}).name;
 const parse=s=>{const m=s.match(/^([^:：]+)[:：](.*)$/);return m?{name:m[1].trim(),desc:m[2].trim()}:{name:s.trim(),desc:""}};
@@ -122,7 +172,7 @@ const cref=n=>collection(fdb,n), dref=(n,id)=>doc(fdb,n,id);
 
 function renderRanks(){
  const b=(a,i,t)=>`<button class="s" data-a="${a}" data-i="${i}">${t}</button>`;
- $("ranks").innerHTML=ranks.length?ranks.map((r,i)=>`<div class="rank"><span class="i">${i+1}</span><span class="n">${esc(r.name)}</span>${me?b("up",i,"↑")+b("dn",i,"↓"):""}${mine(r)?b("rn",i,"名前変更")+b("del",i,"削除"):""}</div>`).join(""):'<div class="empty">まだランクがありません。</div>';
+ $("ranks").innerHTML=ranks.length?ranks.map((r,i)=>`<div class="rank"><span class="i">${i+1}</span><span class="n">${esc(r.name)}</span>${me?b("up",i,"↑")+b("dn",i,"↓"):""}${mine(r)?b("rn",i,"名前変更")+b("del",i,"削除"):""}</div>`).join(""):'<div class="empty">—</div>';
 }
 function renderFields(vals={}){
  const opts=(L,v)=>`<option value="">未入力</option>`+L.map(r=>`<option value="${r.id}"${r.id===v?" selected":""}>${esc(r.name)}</option>`).join("");
@@ -131,11 +181,11 @@ function renderFields(vals={}){
 }
 function renderSimple(id,key){
  const L=lists[key];
- $(id).innerHTML=L.length?L.map((r,i)=>`<div class="rank"><span class="n">${esc(r.name)}${r.desc?` <span class="d">${esc(r.desc)}</span>`:""}</span>${mine(r)?`<button class="s" data-l="${key}" data-a="rn" data-i="${i}">編集</button><button class="s" data-l="${key}" data-a="del" data-i="${i}">削除</button>`:""}</div>`).join(""):'<div class="empty">まだありません。</div>';
+ $(id).innerHTML=L.length?L.map((r,i)=>`<div class="rank"><span class="n">${esc(r.name)}${r.desc?` <span class="d">${esc(r.desc)}</span>`:""}</span>${mine(r)?`<button class="s" data-l="${key}" data-a="rn" data-i="${i}">編集</button><button class="s" data-l="${key}" data-a="del" data-i="${i}">削除</button>`:""}</div>`).join(""):'<div class="empty">—</div>';
 }
 function readForm(){const o={};document.querySelectorAll("#fields select").forEach(s=>{if(s.value)o[s.dataset.k]=s.value});return o}
 function bars(list,total){
- if(!total)return'<div class="empty">データなし</div>';
+ if(!total)return'<div class="empty">—</div>';
  const max=Math.max(...list.map(c=>c.n),1);
  return list.map(c=>`<div class="bar"><span class="l" title="${esc(c.r)}">${esc(c.r)}</span><span class="t"><i style="width:${c.n/max*100}%;background:${c.col}"></i></span><span class="v">${c.n}件 ${(c.n/total*100).toFixed(1)}%</span></div>`).join("");
 }
@@ -150,7 +200,7 @@ function renderSum(){
   return `<div class="wide"><b>${t}</b> <span class="sub">(${vals.length}件)</span>${bars(list,vals.length)}</div>`}).join("");
 }
 function renderList(){
- if(!chickens.length){$("list").innerHTML='<div class="empty">まだ個体がいません。</div>';return}
+ if(!chickens.length){$("list").innerHTML='<div class="empty">—</div>';return}
  $("list").innerHTML=`<table><tr><th>#</th><th>名前</th>${STATS.map(k=>`<th>${k}</th>`).join("")}<th>性格</th><th>特性</th><th>登録者</th><th></th></tr>`+
  chickens.map((c,n)=>`<tr><td>${n+1}</td><td>${esc(c.name||"-")}</td>${STATS.map((_,i)=>`<td>${esc(rname(c.s&&c.s[i])||"-")}</td>`).join("")}<td class="w">${esc(lname("personalities",c.personality)||"-")}</td><td>${esc(lname("traits",c.trait)||"-")}</td><td>${esc(c.uname||"-")}</td>
  <td>${mine(c)?`<button class="s" data-e="${c.id}">編集</button> <button class="s" data-d="${c.id}">削除</button>`:""}</td></tr>`).join("")+"</table>";
@@ -159,7 +209,7 @@ function renderAll(){
  const v=readForm();
  if(editId&&!chickens.some(c=>c.id===editId&&mine(c)))stopEdit();
  document.querySelectorAll(".ed").forEach(e=>e.style.display=me?"":"none");
- $("who").textContent=me?`ログイン中：${me.displayName||me.email||"ユーザー"}`:"ログインすると、ランクや個体を追加できます。";
+ $("who").textContent=me?(me.displayName||me.email||"ユーザー"):"";
  $("login").style.display=me?"none":"";$("logout").style.display=me?"":"none";
  renderRanks();renderSimple("plist","personalities");renderSimple("tlist","traits");renderFields(v);renderSum();renderList();
 }
@@ -234,8 +284,8 @@ $("list").onclick=async e=>{
 
 renderAll();
 if(firebaseConfig.apiKey.startsWith("YOUR_")){
- const m=$("msg");m.style.display="";m.textContent="index.html の firebaseConfig を自分のFirebaseの値に書き換えてください。";
- $("who").textContent="";$("login").style.display="none";
+ const m=$("msg");m.style.display="";m.textContent="firebaseConfig";
+ $("login").style.display="none";
 }else{
  const app=initializeApp(firebaseConfig);auth=getAuth(app);fdb=getFirestore(app);
  const err=e=>{const m=$("msg");m.style.display="";m.textContent="読み込みエラー："+((e&&e.code)||"")};
